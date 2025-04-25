@@ -135,3 +135,5 @@ _NCrunch*
 .vs/
 
 Properties/
+triplo-be/src/appsettings.json
+triplo-be/src/appsettings.Development.json
