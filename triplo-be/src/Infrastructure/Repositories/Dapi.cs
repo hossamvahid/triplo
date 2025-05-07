@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using log4net;
+using Microsoft.EntityFrameworkCore.Storage;
 using src.Application.Interfaces.Repositories;
 using src.Infrastructure.Contexts;
 
@@ -10,10 +11,10 @@ namespace src.Infrastructure.Repositories
         private IDbContextTransaction _transaction;
         public IUserRepository Users { get; }
 
-        public Dapi(PgSqlDbContext context)
+        public Dapi(PgSqlDbContext context,ILog log)
         {
             _context = context;
-            Users = new UserRepository(_context);
+            Users = new UserRepository(_context,log);
         }
 
         public async Task<int> CompleteAsync()

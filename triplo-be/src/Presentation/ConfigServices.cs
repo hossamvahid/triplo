@@ -8,6 +8,7 @@ using src.Application.Interfaces.Repositories;
 using src.Infrastructure.Repositories;
 using src.Application.Interfaces.Services;
 using src.Application.Implementation.Services;
+using log4net;
 
 namespace src.Presentation
 {
@@ -44,6 +45,7 @@ namespace src.Presentation
 
             services.AddScoped<IDapi, Dapi>();
             services.AddScoped<IAuthService,AuthService>();
+            services.AddSingleton(LogManager.GetLogger("Server"));
 
 
         }

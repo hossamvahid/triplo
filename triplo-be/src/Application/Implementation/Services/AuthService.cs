@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using log4net;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using src.Application.Interfaces.Repositories;
@@ -12,15 +13,20 @@ namespace src.Application.Implementation.Services
     public class AuthService : IAuthService
     {
         private readonly IDapi _dapi;
-        public AuthService(IDapi dapi) 
+        private readonly ILog _log;
+        public AuthService(IDapi dapi,ILog log) 
         { 
             _dapi = dapi; 
+            _log = log;
         }
 
         public async Task<(ServiceResult,string?)> RegisterUser(string email, string name , string password)
         {
+            _log.Info($"Register the user with Email: {email} , Username: {name}");
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(password))
             {
+                _log.Info("Request is empty");
                 return new(ServiceResult.EMPTY_STRINGS, null);  
             }
 
@@ -68,7 +74,9 @@ namespace src.Application.Implementation.Services
 
         public async Task<(ServiceResult,string?)> LoginUser(string email, string password)
         {
-            if(string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
+            _log.Info($"Login with Email: {email}");
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
             {
                 return (ServiceResult.EMPTY_STRINGS, null);
             }
@@ -79,17 +87,20 @@ namespace src.Application.Implementation.Services
                 return (ServiceResult.OK, adminToken);
             }
 
-            var user = _dapi.Users.GetByEmailAsync(email).Result;
+            var user = await _dapi.Users.GetByEmailAsync(email);
 
             if (user is null)
             {
                 return (ServiceResult.INVALID_EMAIL, null);
             }
 
+            _log.Info($"Checking the password for the Email {email}");
             if (PasswordHelper.VerifyPassword(password, user.Password) is false)
             {
+                _log.Info("Password was not correct");
                 return (ServiceResult.INVALID_PASSWORD, null);
             }
+            _log.Info($"Password is correct for the Email {email}");
 
             var claims = new[]
             {
