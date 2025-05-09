@@ -20,7 +20,7 @@ namespace src.Application.Implementation.Services
             _log = log;
         }
 
-        public async Task<(ServiceResult,string?)> RegisterUser(string email, string name , string password)
+        public async Task<(ServiceResult,string?)> RegisterUser(string email, string name , string password, string phone)
         {
             _log.Info($"Register the user with Email: {email} , Username: {name}");
 
@@ -43,7 +43,8 @@ namespace src.Application.Implementation.Services
             {
                 Email = email,
                 Name = name,
-                Password = password
+                Password = password,
+                PhoneNumber = phone
             };
 
             await _dapi.BeginTransactionAsync();

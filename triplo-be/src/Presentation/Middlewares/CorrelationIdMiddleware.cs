@@ -15,7 +15,7 @@ namespace src.Presentation.Middlewares
         {
             var correlationId = Guid.NewGuid().ToString();
 
-            LogicalThreadContext.Properties["CorrelationId"]=correlationId;
+            LogicalThreadContext.Properties["CorrelationId"] = correlationId;
 
             context.Response.OnStarting(() =>
             {

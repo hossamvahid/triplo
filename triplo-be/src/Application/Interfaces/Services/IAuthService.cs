@@ -5,7 +5,7 @@ namespace src.Application.Interfaces.Services
 {
     public interface IAuthService
     {
-        Task<(ServiceResult,string?)> RegisterUser(string email,string name,string password);
+        Task<(ServiceResult,string?)> RegisterUser(string email,string name,string password,string phone);
         Task<(ServiceResult, string?)> LoginUser(string email, string password);
     }
 }

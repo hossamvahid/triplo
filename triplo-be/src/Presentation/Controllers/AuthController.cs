@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using src.Application.Interfaces.Repositories;
 using src.Application.Interfaces.Services;
 using src.Infrastructure.Contexts;
@@ -20,7 +21,7 @@ namespace src.Presentation.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var result = _service.RegisterUser(request.Email, request.Name, request.Password).Result;
+            var result = await _service.RegisterUser(request.Email, request.Name, request.Password,request.Phone);
 
             if (result.Item2 is null)
             {
@@ -42,9 +43,15 @@ namespace src.Presentation.Controllers
             }
 
             return Ok(new {token = result.Item2});
+        }
 
 
+        [HttpGet("role")]
+        public IActionResult GetRole()
+        {
+            var role = User.FindFirst(ClaimTypes.Role).Value;
 
+            return Ok(new {Role = role});
         }
     }
 }

@@ -16,7 +16,7 @@ namespace src.Presentation.Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             var forwardedFor = context.Request.Headers["X-Fowarded-For"].FirstOrDefault();
-            var ipAddress=forwardedFor ?? context.Connection.RemoteIpAddress?.ToString();
+            var ipAddress = forwardedFor ?? context.Connection.RemoteIpAddress?.ToString();
 
             _log.Info($"Request {context.Request.Protocol} , {context.Request.Method} , {context.Request.Path} from IP : {ipAddress}");
 

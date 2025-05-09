@@ -11,7 +11,7 @@ using src.Infrastructure.Contexts;
 namespace src.Migrations
 {
     [DbContext(typeof(PgSqlDbContext))]
-    [Migration("20250423222358_Triplo")]
+    [Migration("20250509214039_Triplo")]
     partial class Triplo
     {
         /// <inheritdoc />
@@ -39,6 +39,9 @@ namespace src.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
                     b.Property<int>("Role")

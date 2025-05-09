@@ -21,6 +21,7 @@ namespace src.Infrastructure.Repositories
         {
             _log.Info($"Getting the user by email : {email} ");
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+        
             if(user is null)
             {
                 _log.Info($"User with email: {email} was not found");
