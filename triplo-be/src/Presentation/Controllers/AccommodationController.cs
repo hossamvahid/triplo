@@ -49,6 +49,11 @@ namespace src.Presentation.Controllers
 
             var result = await _service.Reservate(reservation.AccomodationId, email,reservation.StartDate,reservation.EndDate);
 
+            if(result == ServiceResult.RESERVATION_EXISTS)
+            {
+                return BadRequest(result.ToString());
+            }
+
             return Ok();
         }
 

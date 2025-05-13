@@ -23,5 +23,35 @@ namespace src.Infrastructure.Repositories
 
             return reservation;
         }
+
+        public async Task<Reservation> FindByDateAsync(int accomodationId,DateOnly startDate, DateOnly endDate)
+        {
+            _log.Info($"Finding if an reservation already exists for the accomodation with Id: {accomodationId} on dates Check-In {startDate} Check-Out {endDate}");
+            var reservation = await _context.Reservations.FirstOrDefaultAsync(x=> x.AccomodationId == accomodationId && startDate <= x.EndDate && endDate >= x.StartDate);
+
+            if(reservation is null)
+            {
+                _log.Info($"Reservation was not found with Id: {accomodationId} on dates Check-In {startDate} Check-Out {endDate}");
+                return null;
+            }
+
+            _log.Info($"Reservation was found with Id: {accomodationId} on dates Check-In {startDate} Check-Out {endDate}");
+            return reservation;
+        }
+
+        public async Task<(List<Reservation>,int)> GetUserReservationPaginated(int userId,int page ,int size)
+        {
+            _log.Info($"Getting the reservation for user with Id: {userId}");
+
+            var reservations = await _context.Reservations.Include(x=>x.User).Include(x=> x.Accommodation).Where(x => x.UserId == userId).ToListAsync();
+
+            var totalReservations = reservations.Count();
+
+            var totalPages = (int)Math.Ceiling((decimal)totalReservations / size);
+
+            var reservationOnPage = reservations.Skip((page-1)*size).Take(size).ToList();
+
+            return new(reservationOnPage, totalPages);
+        }
     }
 }

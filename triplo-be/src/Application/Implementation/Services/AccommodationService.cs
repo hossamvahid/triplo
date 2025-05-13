@@ -124,6 +124,13 @@ namespace src.Application.Implementation.Services
 
             var user = await _dapi.Users.GetByEmailAsync(email);
 
+            var exists = await _dapi.Reservations.FindByDateAsync(accomodationId, startDate, endDate);
+
+            if(exists is not null)
+            {
+                return ServiceResult.RESERVATION_EXISTS;
+            }
+
             var reservation = new Reservation
             {
                 UserId = user.Id,

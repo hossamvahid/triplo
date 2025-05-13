@@ -2,6 +2,7 @@
 using src.Application.Interfaces.Repositories;
 using src.Application.Interfaces.Services;
 using src.Application.Utils;
+using src.Presentation.ResponseModel;
 
 namespace src.Application.Implementation.Services
 {
@@ -9,10 +10,12 @@ namespace src.Application.Implementation.Services
     {
         private readonly IDapi _dapi;
         private readonly ILog _log;
-        public UserService(IDapi dapi, ILog log)
+        private readonly IMinioRepository _minio;
+        public UserService(IDapi dapi, ILog log, IMinioRepository minio)
         {
             _dapi = dapi;
             _log = log;
+            _minio = minio;
         }
 
         public async Task<(ServiceResult,int,string?,string?)> GetUser(string email)
@@ -57,6 +60,44 @@ namespace src.Application.Implementation.Services
             }
 
             return ServiceResult.OK;
+        }
+
+        public async Task<(ServiceResult,List<UserReservation>?,int)> GetAccomodations(string email,int page ,int size)
+        {
+            _log.Info($"Getting the reservations for the user with email: {email}");
+            var user = await _dapi.Users.GetByEmailAsync(email);
+
+            var reservations= await _dapi.Reservations.GetUserReservationPaginated(user.Id,page,size);
+
+            if(reservations.Item1 is null)
+            {
+                _log.Info($"No reservation was found for the user with email: {email}");
+                return new(ServiceResult.NO_RESERVATION, null,0);
+            }
+            var total = reservations.Item2;
+            var paginatedList = new List<UserReservation>();
+            foreach (var reservation in reservations.Item1)
+            {
+                byte[] blob = await _minio.GetFileAsync(reservation.Accommodation.PhotoFileName);
+                string base64 = $"data:image/jpeg;base64,{Convert.ToBase64String(blob)}";
+
+                var paginated = new UserReservation
+                {
+                    AccomodationName = reservation.Accommodation.Name,
+                    Address = reservation.Accommodation.Address,
+                    PhotoBase64 = base64,
+                    City = reservation.Accommodation.City,
+                    StartDate = reservation.StartDate,
+                    EndDate = reservation.EndDate,
+                };
+
+                paginatedList.Add(paginated);
+
+            }
+
+            return new(ServiceResult.OK, paginatedList, total);
+
+
         }
     }
 }

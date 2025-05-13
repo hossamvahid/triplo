@@ -1,8 +1,9 @@
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { MapPinHouse } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../hooks/useAuth';
 
 const cityNames = {
     0: "Toate orașele",
@@ -17,6 +18,13 @@ const cityNames = {
 function AccomodationDetailsPage() {
     const { id } = useParams();
     const [cazare, setCazare] = useState(null);
+    const [checkIn, setCheckIn] = useState("");
+    const [checkOut, setCheckOut] = useState("");
+    const today = new Date().toISOString().split("T")[0];
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const { getToken } = useAuth();
+    const token = getToken();
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -30,6 +38,30 @@ function AccomodationDetailsPage() {
 
         fetchDetails();
     }, [id]);
+
+    const handleReserve = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        const accomodationId = id;
+        const startDate = checkIn;
+        const endDate = checkOut;
+
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/accomodation/reservate`, {accomodationId,startDate,endDate},{ headers: { Authorization: `Bearer ${token}` } });
+        }
+        catch(err)
+        {
+            setError("These dates have already been booked.");
+            console.error("Create reservation failed: ", err);
+        }
+        finally
+        {
+            setLoading(false);
+        }
+    }
 
     if (!cazare) return <Typography textAlign="center" mt={8}>Se încarcă...</Typography>;
 
@@ -74,7 +106,7 @@ function AccomodationDetailsPage() {
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        height: { md: '400px', xs: 'auto' }, // elimină height fix pe mobil
+                        height: { md: '400px', xs: 'auto' },
                     }}
                 >
                     <Box>
@@ -83,7 +115,12 @@ function AccomodationDetailsPage() {
                         </Typography>
 
 
-                        <Typography variant="body1" gutterBottom sx={{ mt: 2 }}>
+                        <Typography
+                            variant="body1"
+                            component="div"
+                            gutterBottom
+                            sx={{ mt: 2 }}
+                        >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <MapPinHouse size={20} />
                                 <span>{cazare.address}, {cityNames[cazare.city]}</span>
@@ -97,7 +134,7 @@ function AccomodationDetailsPage() {
                         <Box
                             sx={{
                                 display: 'flex',
-                                flexDirection: { xs: 'column', sm: 'row' }, // xs: column pentru mobil, row de la sm+
+                                flexDirection: { xs: 'column', sm: 'row' },
                                 gap: 2,
                                 mt: 3
                             }}
@@ -109,7 +146,9 @@ function AccomodationDetailsPage() {
                                     variant="outlined"
                                     size="small"
                                     fullWidth
-                                    InputLabelProps={{ shrink: true }}
+                                    value={checkIn}
+                                    onChange={(e) => setCheckIn(e.target.value)}
+                                    inputProps={{ min: today }}
                                 />
                             </Box>
                             <Box sx={{ flex: 1 }}>
@@ -119,7 +158,9 @@ function AccomodationDetailsPage() {
                                     variant="outlined"
                                     size="small"
                                     fullWidth
-                                    InputLabelProps={{ shrink: true }}
+                                    value={checkOut}
+                                    onChange={(e) => setCheckOut(e.target.value)}
+                                    inputProps={{ min: checkIn || today }}
                                 />
                             </Box>
                         </Box>
@@ -127,6 +168,7 @@ function AccomodationDetailsPage() {
                         <Button
                             variant="contained"
                             fullWidth
+                            onClick={handleReserve}
                             sx={{
                                 mt: 3,
                                 backgroundColor: '#3C3C3C',
@@ -140,8 +182,21 @@ function AccomodationDetailsPage() {
                                 textTransform: 'none',
                             }}
                         >
-                            Reserve
+                            {loading ? <CircularProgress size={25} color="#F5F5F5" /> : "Reserve"}
                         </Button>
+
+                         {error && (
+                        <Box sx={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            marginBottom: 2
+                        }}>
+                            <Typography variant="body2" color="#2B2B2B">
+                                {error}
+                            </Typography>
+                        </Box>
+                    )}
                     </Box>
                 </Box>
             </Box>

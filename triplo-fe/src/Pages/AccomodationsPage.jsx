@@ -17,7 +17,7 @@ function AccomodationsPage() {
     const token = getToken();
     const isMobile = useMediaQuery('(max-width:600px)');
     const navigate = useNavigate();
-
+    const today = new Date().toISOString().split("T")[0];
 
     const cityNames = {
         0: "Toate orașele",
@@ -99,7 +99,10 @@ function AccomodationsPage() {
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         InputProps={{ disableUnderline: true }}
-                        inputProps={{ style: { fontSize: isMobile ? '0.85rem' : '1rem' } }}
+                        inputProps={{
+                            min: today, 
+                            style: { fontSize: isMobile ? '0.85rem' : '1rem' }
+                        }}
                     />
                 </Box>
 
@@ -111,7 +114,10 @@ function AccomodationsPage() {
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                         InputProps={{ disableUnderline: true }}
-                        inputProps={{ style: { fontSize: isMobile ? '0.85rem' : '1rem' } }}
+                        inputProps={{
+                            min: startDate || today, 
+                            style: { fontSize: isMobile ? '0.85rem' : '1rem' }
+                        }}
                     />
                 </Box>
 
@@ -174,7 +180,7 @@ function AccomodationsPage() {
                             <img
                                 src={cazare.photoBase64}
                                 alt={cazare.name}
-                                onClick={()=> navigate(`/accomodation/${cazare.id}`)}
+                                onClick={() => navigate(`/accomodation/${cazare.id}`)}
                                 style={{
                                     width: "100%",
                                     height: "100%",
@@ -198,7 +204,7 @@ function AccomodationsPage() {
                     color="#3C3C3C"
                     sx={{ marginTop: 2, backgroundColor: '#3C3C3C', color: '#FFFFFF', '&:hover': { backgroundColor: '#2B2B2B' } }}
                 >
-                    Anterior
+                    PREVIOUS
                 </Button>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>{page} / {totalPages}</Box>
                 <Button
@@ -208,7 +214,7 @@ function AccomodationsPage() {
                     color="#3C3C3C"
                     sx={{ marginTop: 2, backgroundColor: '#3C3C3C', color: '#FFFFFF', '&:hover': { backgroundColor: '#2B2B2B' } }}
                 >
-                    Următor
+                    NEXT
                 </Button>
             </Box>
 

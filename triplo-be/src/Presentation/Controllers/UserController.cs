@@ -62,5 +62,20 @@ namespace src.Presentation.Controllers
             return BadRequest();
         }
 
+        [HttpGet("reservations")]
+
+        public async Task<IActionResult> GetReservations(int page=1 ,int size=5)
+        {
+            var email = User.FindFirst(ClaimTypes.Email).Value;
+            var result = await _service.GetAccomodations(email, page, size);
+
+            if(result.Item1.Equals(ServiceResult.OK))
+            {
+                return Ok(new { Accomodations = result.Item2, total = result.Item3 });
+            }
+
+            return BadRequest(result.Item1.ToString());
+        }
+
     }
 }
