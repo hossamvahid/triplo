@@ -117,8 +117,34 @@ function ProfilePage() {
                     )}
 
                     <form onSubmit={handleSubmit}>
-                        <TextField label="New Password" variant="outlined" type="password" fullWidth margin="normal" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                        <TextField label="Confirm Password" variant="outlined" type="password" fullWidth margin="normal" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                        <TextField label="New Password" variant="outlined" type="password" fullWidth margin="normal" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} sx={{
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#2B2B2B',
+                                },
+                            },
+                            '& label': {
+                                color: '#2B2B2B',
+                            },
+                            '& label.Mui-focused': {
+                                color: '#2B2B2B',
+                            },
+                        }} />
+                        
+                        <TextField label="Confirm Password" variant="outlined" type="password" fullWidth margin="normal" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} sx={{
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#2B2B2B',
+                                },
+                            },
+                            '& label': {
+                                color: '#2B2B2B',
+                            },
+                            '& label.Mui-focused': {
+                                color: '#2B2B2B',
+                            },
+                        }} />
+
                         <Button type="submit" variant="contained" fullWidth sx={{ marginTop: 2, backgroundColor: '#3C3C3C', color: '#FFFFFF', '&:hover': { backgroundColor: '#2B2B2B' } }}>
                             {loading ? <CircularProgress size={25} color="#F5F5F5" /> : "Submit"}
                         </Button>
