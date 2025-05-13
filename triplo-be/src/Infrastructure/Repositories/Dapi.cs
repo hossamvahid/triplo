@@ -10,11 +10,16 @@ namespace src.Infrastructure.Repositories
         private readonly PgSqlDbContext _context;
         private IDbContextTransaction _transaction;
         public IUserRepository Users { get; }
+        public IAccomodationRepository Accomodations { get; }
+
+        public IReservationRepository Reservations { get; }
 
         public Dapi(PgSqlDbContext context,ILog log)
         {
             _context = context;
             Users = new UserRepository(_context,log);
+            Accomodations = new AccomodationRepository(_context,log);
+            Reservations = new ReservationRepository(_context,log);
         }
 
         public async Task<int> CompleteAsync()

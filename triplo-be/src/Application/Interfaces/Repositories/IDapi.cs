@@ -4,6 +4,9 @@
     {
 
         IUserRepository Users { get; }
+        IAccomodationRepository Accomodations { get; }
+
+        IReservationRepository Reservations { get; }
 
         Task<int> CompleteAsync();
         Task BeginTransactionAsync();

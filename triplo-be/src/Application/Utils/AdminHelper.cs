@@ -17,7 +17,8 @@ namespace src.Application.Utils
 
                 var adminClaims = new[]
                 {
-                    new Claim(ClaimTypes.Role, Role.Admin.ToString())
+                    new Claim(ClaimTypes.Role, Role.Admin.ToString()),
+                    new Claim(ClaimTypes.Email, email),
                 };
 
                 var adminToken = TokenHelper.GenerateJwtToken(adminClaims);

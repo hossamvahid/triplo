@@ -48,7 +48,6 @@ const Navbar = () => {
             else {
                 setRole("");
             }
-            console.log(role);
         };
 
 
@@ -94,7 +93,7 @@ const Navbar = () => {
 
                             {role === "Admin" && (
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <HouseIcon onClick={() => handleRedirect("/")} />
+                                    <HouseIcon onClick={() => handleRedirect("/accomodations")} />
                                     <DashboardIcon onClick={() => handleRedirect("/")} />
                                     <LogoutIcon onClick={logOut} />
                                 </Box>
@@ -102,8 +101,8 @@ const Navbar = () => {
 
                             {role === "User" && (
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <HouseIcon onClick={() => handleRedirect("/")} />
-                                    <UserProfileIcon onClick={() => handleRedirect("/")} />
+                                    <HouseIcon onClick={() => handleRedirect("/accomodations")} />
+                                    <UserProfileIcon onClick={() => handleRedirect("/profile")} />
                                     <LogoutIcon onClick={logOut} />
                                 </Box>
                             )}

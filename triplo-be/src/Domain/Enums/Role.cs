@@ -3,8 +3,6 @@
     public enum Role
     {
         Admin,
-        User,
-        Pending,
-        Host
+        User
     }
 }

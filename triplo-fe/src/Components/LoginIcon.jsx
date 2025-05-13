@@ -4,7 +4,7 @@ import { Box, useMediaQuery, useTheme } from '@mui/material';
 const LoginIcon = ({onClick}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+    
     return (
         <Box
             sx={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}

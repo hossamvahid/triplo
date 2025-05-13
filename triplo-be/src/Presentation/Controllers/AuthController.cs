@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using src.Application.Interfaces.Repositories;
 using src.Application.Interfaces.Services;
@@ -47,6 +48,7 @@ namespace src.Presentation.Controllers
 
 
         [HttpGet("role")]
+        [Authorize(Roles ="Admin,User")]
         public IActionResult GetRole()
         {
             var role = User.FindFirst(ClaimTypes.Role).Value;

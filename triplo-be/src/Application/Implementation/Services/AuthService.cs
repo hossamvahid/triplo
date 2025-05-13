@@ -63,6 +63,7 @@ namespace src.Application.Implementation.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Role,Role.User.ToString()),
+                new Claim(ClaimTypes.Email,email),
             };
 
             var token = TokenHelper.GenerateJwtToken(claims);
@@ -106,6 +107,7 @@ namespace src.Application.Implementation.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
             };
 
             var token = TokenHelper.GenerateJwtToken(claims);

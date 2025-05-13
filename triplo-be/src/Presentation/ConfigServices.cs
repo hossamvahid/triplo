@@ -9,6 +9,7 @@ using src.Infrastructure.Repositories;
 using src.Application.Interfaces.Services;
 using src.Application.Implementation.Services;
 using log4net;
+using Minio;
 
 namespace src.Presentation
 {
@@ -43,9 +44,22 @@ namespace src.Presentation
                 };
             });
 
+            
+
+            services.AddMinio(config =>
+            {
+                config.WithEndpoint(Environment.GetEnvironmentVariable("MinioEndpoint"))
+                .WithCredentials(Environment.GetEnvironmentVariable("MinioKey"), Environment.GetEnvironmentVariable("MinioSecretKey"))
+                .WithSSL(false)
+                .Build();
+            });
+
             services.AddScoped<IDapi, Dapi>();
             services.AddScoped<IAuthService,AuthService>();
             services.AddSingleton(LogManager.GetLogger("Server"));
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMinioRepository, MinioRepository>();
+            services.AddScoped<IAccommodationService, AccommodationService>();
 
 
         }

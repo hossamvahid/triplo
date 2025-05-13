@@ -18,5 +18,7 @@ namespace src.Domain.Entities
 
         public Role Role { get; set; } = Role.User; 
 
+        public IEnumerable<Reservation>? Reservations { get; set; }
+
     }
 }

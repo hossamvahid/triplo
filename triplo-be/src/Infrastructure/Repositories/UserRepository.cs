@@ -54,5 +54,28 @@ namespace src.Infrastructure.Repositories
             await _context.Users.AddAsync(user);
             return user;
         }
+
+        public async Task<User> GetByIdAsync(int id)
+        {
+            _log.Info($"Getting the user with Id: {id}");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if( user is null )
+            {
+                _log.Info("User was not found");
+                return null;
+            }
+
+            _log.Info("User was found");
+            return user;
+        }
+
+       public User Update(User user)
+        {
+            _log.Info($"Updating the user with Email: {user.Email}");
+            _context.Users.Update(user); 
+            return user;
+        }
     }
 }
