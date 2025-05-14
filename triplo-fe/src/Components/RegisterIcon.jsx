@@ -1,19 +1,26 @@
+import { useContext } from 'react';
 import { UserPlus } from 'lucide-react';
-import { Box, useMediaQuery, useTheme, Typography } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { ColorModeContext } from "./ThemeContext";
 
-const RegisterIcon = ({onClick}) => {
+const RegisterIcon = ({ onClick }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const colorMode = useContext(ColorModeContext); // doar dacă vei folosi toggleColorMode mai târziu
+
     return (
-        <>
-            <Box
-                onClick={onClick}
-                sx={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
-            >
-                <UserPlus color="#3C3C3C" size={isMobile ? 16 : 20} />
-            </Box>
-        </>
-    )
-}
+        <Box
+            sx={{
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                color: theme.palette.text.primary,
+            }}
+            onClick={onClick}
+        >
+            <UserPlus color={theme.palette.text.primary} size={isMobile ? 16 : 20} />
+        </Box>
+    );
+};
 
 export default RegisterIcon;

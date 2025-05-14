@@ -2,7 +2,7 @@ import { Box, Button, TextField, Select, MenuItem, FormControl } from '@mui/mate
 import { useEffect, useState } from "react";
 import { useAuth } from '../hooks/useAuth';
 import { Search } from 'lucide-react';
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery,useTheme } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +18,7 @@ function AccomodationsPage() {
     const isMobile = useMediaQuery('(max-width:600px)');
     const navigate = useNavigate();
     const today = new Date().toISOString().split("T")[0];
+    const theme = useTheme();
 
     const cityNames = {
         0: "Toate orașele",
@@ -56,25 +57,26 @@ function AccomodationsPage() {
     return (
         <Box className="flex-grow mt-16">
             {/* SEARCH BAR */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexWrap: 'nowrap',
-                    borderRadius: '999px',
-                    boxShadow: 3,
-                    padding: isMobile ? '6px 10px' : '16px',
-                    width: '100%',
-                    maxWidth: isMobile ? '360px' : 'fit-content',
-                    margin: '80px auto 24px auto',
-                    gap: isMobile ? 1 : 3,
-                    backgroundColor: '#FAF9F6',
-                    boxSizing: 'border-box',
-                    overflow: 'hidden',
-                }}
-            >
+<Box
+  sx={{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'nowrap',
+    borderRadius: '999px',
+    boxShadow: 3,
+    padding: isMobile ? '6px 10px' : '16px',
+    width: '100%',
+    maxWidth: isMobile ? '360px' : 'fit-content',
+    margin: '80px auto 24px auto',
+    gap: isMobile ? 1 : 3,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+  }}
+>
                 <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: isMobile ? '100px' : '140px' }}>
                     <strong style={{ fontSize: isMobile ? '0.85rem' : '1rem' }}>Where?</strong>
                     <FormControl variant="standard" fullWidth>

@@ -1,260 +1,280 @@
-import { Box, Typography, useMediaQuery, TextField, Button, CircularProgress } from '@mui/material';
+import {
+  Box, Typography, useMediaQuery, TextField, Button, CircularProgress
+} from '@mui/material';
 import { useState, useEffect } from 'react';
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { Mail, Phone, RotateCcwKey } from 'lucide-react';
+import { useTheme } from '@mui/material/styles';
+import { grey } from '@mui/material/colors';
 
 function ProfilePage() {
-    const isMobile = useMediaQuery('(max-width:768px)');
-    const { getToken } = useAuth();
-    const token = getToken();
-    const [name, setName] = useState();
-    const [email, setEmail] = useState();
-    const [phone, setPhone] = useState();
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [reservations, setReservations] = useState([]);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+  const isMobile = useMediaQuery('(max-width:768px)');
+  const theme = useTheme();
+  const { getToken } = useAuth();
+  const token = getToken();
 
-    const cityNames = {
-        0: "Toate orașele",
-        1: "București",
-        2: "Iași",
-        3: "Cluj",
-        4: "Brașov",
-        5: "Timișoara",
-        6: "Craiova"
-    };
+  const [name, setName] = useState();
+  const [email, setEmail] = useState();
+  const [phone, setPhone] = useState();
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [reservations, setReservations] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-    const size = isMobile ? 1 : 2;
+  const cityNames = {
+    0: "Toate orașele",
+    1: "București",
+    2: "Iași",
+    3: "Cluj",
+    4: "Brașov",
+    5: "Timișoara",
+    6: "Craiova"
+  };
 
-    const fetchUser = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/detail`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setName(response.data.name);
-            setEmail(response.data.email);
-            setPhone(response.data.phone);
-        } catch (error) {
-            console.error("Error fetching user details:", error);
-        }
-    };
+  const size = isMobile ? 1 : 2;
 
-    const fetchReservations = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/reservations?page=${page}&size=${size}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setReservations(response.data.accomodations);
-            setTotalPages(response.data.total);
-        } catch (error) {
-            console.error("Error loading reservations:", error);
-        }
-    };
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/detail`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      setName(res.data.name);
+      setEmail(res.data.email);
+      setPhone(res.data.phone);
+    }).catch(err => console.error(err));
+  }, [token]);
 
-    useEffect(() => {
-        fetchUser();
-    }, [token]);
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/reservations?page=${page}&size=${size}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      setReservations(res.data.accomodations);
+      setTotalPages(res.data.total);
+    }).catch(err => console.error(err));
+  }, [page, isMobile, token]);
 
-    useEffect(() => {
-        fetchReservations();
-    }, [page, isMobile, token]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
-        if (newPassword !== confirmPassword) {
-            setError("Passwords do not match");
-            setLoading(false);
-            return;
-        }
+    try {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/user/update`, { newPassword }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      window.location.reload();
+    } catch (err) {
+      setError("Password reset failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/user/update`, { newPassword }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            window.location.reload();
-        } catch (err) {
-            setError("Password reset failed");
-            console.error("Reset failed: ", err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  return (
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, padding: 4, mt: 8 }}>
+      {/* USER INFO */}
+      <Box sx={{ flex: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Typography variant="h4" sx={{ color: theme.palette.text.primary }}>
+          Welcome, {name}
+        </Typography>
 
-    return (
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, padding: 4, mt: 8 }}>
-            {/* USER DETAILS */}
-            <Box className="col-span-2 flex flex-col gap-6">
-                <Typography variant="h4" className="text-4xl font-bold text-[#2B2B2B] leading-tight">Welcome, {name}</Typography>
-
-                <Box className="flex items-center gap-3 border py-1 px-3 rounded-md bg-[#F5F5F5] text-[#2B2B2B] text-sm max-w-xs">
-                    <Mail size={20} className="text-[#2B2B2B]" />
-                    <Typography variant="h6" className="truncate text-[#2B2B2B]">{email}</Typography>
-                </Box>
-
-                <Box className="flex items-center gap-3 border py-1 px-3 rounded-md bg-[#F5F5F5] text-[#2B2B2B] text-sm max-w-xs">
-                    <Phone size={20} className="text-[#2B2B2B]" />
-                    <Typography variant="h6" className="truncate text-[#2B2B2B]">{phone}</Typography>
-                </Box>
-
-                <Box className="border py-4 px-6 rounded-md bg-[#F5F5F5] text-[#2B2B2B] text-sm max-w-xs">
-                    <Box className="flex items-center gap-3">
-                        <RotateCcwKey size={20} className="text-[#2B2B2B]" />
-                        <Typography variant="h6" className="font-semibold mb-4">Reset Password</Typography>
-                    </Box>
-
-                    {error && (
-                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
-                            <Typography variant="body2" color="#2B2B2B">{error}</Typography>
-                        </Box>
-                    )}
-
-                    <form onSubmit={handleSubmit}>
-                        <TextField label="New Password" variant="outlined" type="password" fullWidth margin="normal" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '&.Mui-focused fieldset': {
-                                    borderColor: '#2B2B2B',
-                                },
-                            },
-                            '& label': {
-                                color: '#2B2B2B',
-                            },
-                            '& label.Mui-focused': {
-                                color: '#2B2B2B',
-                            },
-                        }} />
-                        
-                        <TextField label="Confirm Password" variant="outlined" type="password" fullWidth margin="normal" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '&.Mui-focused fieldset': {
-                                    borderColor: '#2B2B2B',
-                                },
-                            },
-                            '& label': {
-                                color: '#2B2B2B',
-                            },
-                            '& label.Mui-focused': {
-                                color: '#2B2B2B',
-                            },
-                        }} />
-
-                        <Button type="submit" variant="contained" fullWidth sx={{ marginTop: 2, backgroundColor: '#3C3C3C', color: '#FFFFFF', '&:hover': { backgroundColor: '#2B2B2B' } }}>
-                            {loading ? <CircularProgress size={25} color="#F5F5F5" /> : "Submit"}
-                        </Button>
-                    </form>
-                </Box>
-            </Box>
-
-            {/* RESERVATIONS */}
-            <Box sx={{ flex: 1, py: 4, px: 6, color: '#2B2B2B' }}>
-                <Box
-                    sx={{
-                        display: isMobile ? 'flex' : 'grid',
-                        flexDirection: isMobile ? 'column' : undefined,
-                        justifyContent: isMobile ? 'center' : undefined,
-                        alignItems: isMobile ? 'center' : undefined,
-                        gridTemplateColumns: isMobile ? undefined : '1fr 1fr',
-                        gap: 2,
-                    }}
-                >
-                    {reservations.map((rez, idx) => (
-                        <Box
-                            key={idx}
-                            sx={{
-                                borderRadius: 3,
-                                backgroundColor: '#fff',
-                                boxShadow: 3,
-                                padding: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'start',
-                                textAlign: 'left',
-                                width: isMobile ? 260 : '100%',
-                                height: isMobile ? 300 : 'auto',
-                            }}
-                        >
-                            <img
-                                src={rez.photoBase64}
-                                alt={rez.accomodationName}
-                                style={{
-                                    width: '100%',
-                                    height: isMobile ? 160 : '180px',
-                                    objectFit: 'cover',
-                                    borderRadius: '12px',
-                                    marginBottom: '8px',
-                                }}
-                            />
-                            <Typography variant="subtitle1" fontWeight={600}>{rez.accomodationName}, {cityNames[rez.city]} </Typography>
-                            <Typography variant="body2" color="text.secondary">{rez.address}</Typography>
-                            <Typography variant="body2" color="text.secondary">{rez.startDate} → {rez.endDate}</Typography>
-                        </Box>
-                    ))}
-                </Box>
-
-                {/* PAGINATION */}
-                <Box
-                    sx={{
-                        gridColumn: isMobile ? undefined : '1 / -1',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexWrap: 'nowrap',
-                        gap: 1,
-                        mt: 2
-                    }}
-                >
-                    <Button
-                        variant="contained"
-                        disabled={page === 1}
-                        onClick={() => setPage((prev) => prev - 1)}
-                        sx={{
-                            backgroundColor: '#3C3C3C',
-                            color: '#FFFFFF',
-                            '&:hover': { backgroundColor: '#2B2B2B' },
-                            minWidth: 90,
-                            flexShrink: 0
-                        }}
-                    >
-                        PREVIOUS
-                    </Button>
-
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            minWidth: 50,
-                            textAlign: 'center',
-                            fontWeight: 500,
-                            flexShrink: 0
-                        }}
-                    >
-                        {page} / {totalPages}
-                    </Typography>
-
-                    <Button
-                        variant="contained"
-                        disabled={page === totalPages}
-                        onClick={() => setPage((prev) => prev + 1)}
-                        sx={{
-                            backgroundColor: '#3C3C3C',
-                            color: '#FFFFFF',
-                            '&:hover': { backgroundColor: '#2B2B2B' },
-                            minWidth: 90,
-                            flexShrink: 0
-                        }}
-                    >
-                        NEXT
-                    </Button>
-                </Box>
-            </Box>
+        <Box sx={{
+          display: 'flex', alignItems: 'center', gap: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          py: 1, px: 2, borderRadius: 2,
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          maxWidth: 300
+        }}>
+          <Mail size={20} />
+          <Typography variant="body1">{email}</Typography>
         </Box>
-    );
+
+        <Box sx={{
+          display: 'flex', alignItems: 'center', gap: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          py: 1, px: 2, borderRadius: 2,
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          maxWidth: 300
+        }}>
+          <Phone size={20} />
+          <Typography variant="body1">{phone}</Typography>
+        </Box>
+
+        {/* RESET PASSWORD */}
+        <Box sx={{
+          border: `1px solid ${theme.palette.divider}`,
+          py: 3, px: 3, borderRadius: 2,
+          backgroundColor: theme.palette.background.paper,
+          maxWidth: 300
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <RotateCcwKey size={20} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Reset Password</Typography>
+          </Box>
+
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mb: 1, textAlign: 'center' }}>
+              {error}
+            </Typography>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="New Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              error={newPassword.length > 0 && (newPassword.length < 3 || newPassword.length > 12)}
+              helperText={
+                newPassword.length > 0 && (newPassword.length < 3 || newPassword.length > 12)
+                  ? 'Password must be 3-12 characters'
+                  : ''
+              }
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              error={confirmPassword.length > 0 && confirmPassword !== newPassword}
+              helperText={
+                confirmPassword.length > 0 && confirmPassword !== newPassword
+                  ? 'Passwords do not match'
+                  : ''
+              }
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={
+                !newPassword ||
+                !confirmPassword ||
+                newPassword.length < 3 ||
+                newPassword.length > 12 ||
+                confirmPassword !== newPassword ||
+                loading
+              }
+              sx={{
+                mt: 2,
+                backgroundColor: theme.palette.mode === 'dark' ? grey[100] : grey[900],
+                color: theme.palette.mode === 'dark' ? grey[900] : '#fff',
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? grey[300] : grey[800],
+                }
+              }}
+            >
+              {loading ? <CircularProgress size={25} sx={{ color: theme.palette.mode === 'dark' ? grey[900] : '#fff' }} /> : "Submit"}
+            </Button>
+          </form>
+        </Box>
+      </Box>
+
+      {/* RESERVATIONS */}
+      <Box sx={{ flex: 3, py: 2, px: 1 }}>
+        <Box
+          sx={{
+            display: isMobile ? 'flex' : 'grid',
+            flexDirection: isMobile ? 'column' : undefined,
+            justifyContent: 'center',
+            alignItems: isMobile ? 'center' : undefined,
+            gridTemplateColumns: isMobile ? undefined : '1fr 1fr',
+            gap: 2,
+          }}
+        >
+          {reservations.map((rez, idx) => (
+            <Box
+              key={idx}
+              sx={{
+                borderRadius: 2,
+                backgroundColor: theme.palette.background.paper,
+                boxShadow: 2,
+                padding: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                width: isMobile ? 260 : '100%',
+                height: isMobile ? 300 : 'auto',
+              }}
+            >
+              <img
+                src={rez.photoBase64}
+                alt={rez.accomodationName}
+                style={{
+                  width: '100%',
+                  height: isMobile ? 160 : 180,
+                  objectFit: 'cover',
+                  borderRadius: 8,
+                  marginBottom: 8,
+                }}
+              />
+              <Typography variant="subtitle1" fontWeight={600}>
+                {rez.accomodationName}, {cityNames[rez.city]}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">{rez.address}</Typography>
+              <Typography variant="body2" color="text.secondary">{rez.startDate} → {rez.endDate}</Typography>
+            </Box>
+          ))}
+        </Box>
+
+        {/* PAGINATION */}
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 2,
+          mt: 3,
+        }}>
+          <Button
+            variant="contained"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => prev - 1)}
+            sx={{
+              backgroundColor: theme.palette.mode === 'dark' ? grey[100] : grey[900],
+              color: theme.palette.mode === 'dark' ? grey[900] : '#fff',
+              '&:hover': {
+                backgroundColor: theme.palette.mode === 'dark' ? grey[300] : grey[800],
+              }
+            }}
+          >
+            Previous
+          </Button>
+          <Typography variant="body2" fontWeight={500}>
+            {page} / {totalPages}
+          </Typography>
+          <Button
+            variant="contained"
+            disabled={page === totalPages}
+            onClick={() => setPage((prev) => prev + 1)}
+            sx={{
+              backgroundColor: theme.palette.mode === 'dark' ? grey[100] : grey[900],
+              color: theme.palette.mode === 'dark' ? grey[900] : '#fff',
+              '&:hover': {
+                backgroundColor: theme.palette.mode === 'dark' ? grey[300] : grey[800],
+              }
+            }}
+          >
+            Next
+          </Button>
+        </Box>
+      </Box>
+    </Box>
+  );
 }
 
 export default ProfilePage;
+    

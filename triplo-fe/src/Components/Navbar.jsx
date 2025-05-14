@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
-import { Box } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import LoginIcon from "./LoginIcon";
 import RegisterIcon from "./RegisterIcon";
@@ -12,15 +12,18 @@ import DashboardIcon from "./DashboardIcon";
 import LogoutIcon from "./LogoutIcon";
 import HouseIcon from "./HouseIcon";
 import UserProfileIcon from "./UserProfileIcon";
+import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
+import { ColorModeContext } from "./ThemeContext";
 
 const Navbar = () => {
-
     const navigate = useNavigate();
     const { getToken } = useAuth();
     const [role, setRole] = useState(null);
+    const theme = useTheme();
+    const colorMode = useContext(ColorModeContext);
 
     useEffect(() => {
-
         const fetchRole = async () => {
             const token = getToken();
 
@@ -32,95 +35,92 @@ const Navbar = () => {
                         localStorage.removeItem("authToken");
                         setRole("");
                         navigate("/");
-                    }
-                    else {
+                    } else {
                         setRole(userRole);
                     }
-                }
-                catch (error) {
+                } catch (error) {
                     console.error("Error fetching user role: ", error);
                     localStorage.removeItem("authToken");
                     setRole("");
                     navigate("/");
                 }
-
-            }
-            else {
+            } else {
                 setRole("");
             }
         };
 
-
         fetchRole();
-
     }, [getToken, navigate]);
 
-
-    const handleRedirect = (where) => {
-        navigate(where);
-    }
+    const handleRedirect = (path) => {
+        navigate(path);
+    };
 
     const logOut = () => {
         localStorage.removeItem("authToken");
         navigate("/");
-    }
+    };
 
     return (
-        <>
-            <header>
-                <AppBar elevation={2}>
-                    <Toolbar className="flex justify-between items-center px-4"
+        <header>
+            <AppBar elevation={2}>
+                <Toolbar
+                    className="flex justify-between items-center px-4"
+                    sx={{
+                        backgroundColor: theme.palette.background.default,
+                        color: theme.palette.text.primary,
+                        borderBottom: `0.25px solid ${theme.palette.divider}`
+                    }}
+                >
+                    <Button
+                        onClick={() => handleRedirect("/")}
                         sx={{
-                            backgroundColor: '#FAF9F6',
-                            borderBottom: '0.25px solid #3C3C3C'
-                        }}>
+                            color: theme.palette.text.primary,
+                            backgroundColor: "transparent",
+                        }}
+                    >
+                        Triplo
+                    </Button>
 
-                        <Button sx={{ color: "#3C3C3C", backgroundColor: "transparent" }} onClick={() => handleRedirect("/")}> Triplo </Button>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        {role === "" && (
+                            <>
+                                <LoginIcon onClick={() => handleRedirect("/login")} />
+                                <RegisterIcon onClick={() => handleRedirect("/register")} />
+                                <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+                                    {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+                                </IconButton>
+                            </>
+                        )}
 
-                        <Box>
+                        {role === "Admin" && (
+                            <>
+                                <HouseIcon onClick={() => handleRedirect("/accomodations")} />
+                                <DashboardIcon onClick={() => handleRedirect("/")} />
+                                <LogoutIcon onClick={logOut} />
 
-                        </Box>
+                                <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+                                    {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+                                </IconButton>
+                            </>
+                        )}
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            {role === "" && (
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <LoginIcon onClick={() => handleRedirect("/login")} />
+                        {role === "User" && (
+                            <>
+                                <HouseIcon onClick={() => handleRedirect("/accomodations")} />
+                                <UserProfileIcon onClick={() => handleRedirect("/profile")} />
+                                <LogoutIcon onClick={logOut} />
 
-                                    <RegisterIcon onClick={() => handleRedirect("/register")} />
-                                </Box>
-                            )}
-
-
-                            {role === "Admin" && (
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <HouseIcon onClick={() => handleRedirect("/accomodations")} />
-                                    <DashboardIcon onClick={() => handleRedirect("/")} />
-                                    <LogoutIcon onClick={logOut} />
-                                </Box>
-                            )}
-
-                            {role === "User" && (
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <HouseIcon onClick={() => handleRedirect("/accomodations")} />
-                                    <UserProfileIcon onClick={() => handleRedirect("/profile")} />
-                                    <LogoutIcon onClick={logOut} />
-                                </Box>
-                            )}
-
-
-
-
-
-
-
-                        </Box>
-
-                    </Toolbar>
-                </AppBar>
-            </header>
-        </>
-    )
-
-}
+                                <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+                                    {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+                                </IconButton>
+                            </>
+                        )}
+                    </Box>
+                </Toolbar>
+            </AppBar>
+        </header>
+    );
+};
 
 export default Navbar;
